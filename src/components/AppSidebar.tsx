@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, ShoppingCart, Brain, Truck, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Brain, LogOut } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { logout } from '@/lib/store';
