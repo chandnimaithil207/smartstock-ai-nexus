@@ -20,7 +20,6 @@ const navItems = [
   { title: 'Inventory', url: '/inventory', icon: Package },
   { title: 'Sales Logs', url: '/sales', icon: ShoppingCart },
   { title: 'AI Forecasts', url: '/forecasts', icon: Brain },
-  { title: 'Suppliers', url: '/suppliers', icon: Truck },
 ];
 
 export function AppSidebar() {
