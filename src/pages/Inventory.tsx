@@ -3,9 +3,10 @@ import { getProducts, deleteProduct } from '@/lib/store';
 import { getProductStatus, toINR } from '@/lib/helpers';
 import { StatusBadge } from '@/components/StatusBadge';
 import { AddProductDialog } from '@/components/AddProductDialog';
-import { Package, Trash2, ArrowUpDown } from 'lucide-react';
+import { Package, Trash2, ArrowUpDown, Pencil } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Product, CATEGORIES } from '@/lib/types';
+import { EditStockDialog } from '@/components/EditStockDialog';
 
 type SortKey = 'name' | 'currentStock' | 'expiryDate' | 'status';
 
