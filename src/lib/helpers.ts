@@ -58,11 +58,5 @@ export const seedProducts = (): Product[] => [
   { id: generateId(), name: 'Shimla Apples 1kg', category: 'Fruits', sku: 'FRT-002', currentStock: 20, unitPrice: 180, minThreshold: 10, expiryDate: '30/03/2026', addedDate: '15/03/2026' },
 ];
 
-export const seedSuppliers = (): Supplier[] => [
-  { id: generateId(), name: 'Amul India Ltd.', contact: '+91 98765 43210', email: 'supply@amul.coop', category: 'Dairy', rating: 5 },
-  { id: generateId(), name: 'ITC Foods Division', contact: '+91 98765 43211', email: 'procurement@itc.in', category: 'Grains', rating: 4 },
-  { id: generateId(), name: 'Britannia Industries', contact: '+91 98765 43212', email: 'orders@britannia.co.in', category: 'Bakery', rating: 4 },
-  { id: generateId(), name: 'Tata Consumer Products', contact: '+91 98765 43213', email: 'sales@tataconsumer.com', category: 'Beverages', rating: 5 },
-];
 
 
