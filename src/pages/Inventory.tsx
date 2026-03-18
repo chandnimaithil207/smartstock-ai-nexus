@@ -3,9 +3,10 @@ import { getProducts, deleteProduct } from '@/lib/store';
 import { getProductStatus, toINR } from '@/lib/helpers';
 import { StatusBadge } from '@/components/StatusBadge';
 import { AddProductDialog } from '@/components/AddProductDialog';
-import { Package, Trash2, ArrowUpDown } from 'lucide-react';
+import { Package, Trash2, ArrowUpDown, Pencil } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Product, CATEGORIES } from '@/lib/types';
+import { EditStockDialog } from '@/components/EditStockDialog';
 
 type SortKey = 'name' | 'currentStock' | 'expiryDate' | 'status';
 
@@ -15,6 +16,8 @@ export default function Inventory() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [sortKey, setSortKey] = useState<SortKey>('name');
   const [sortAsc, setSortAsc] = useState(true);
+  const [editProduct, setEditProduct] = useState<Product | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   const refresh = useCallback(() => setProducts(getProducts()), []);
 
@@ -107,7 +110,7 @@ export default function Inventory() {
                 <th className="text-right p-3 font-medium">Price</th>
                 <th className="text-left p-3 font-medium">Expiry</th>
                 <SortHeader label="Status" field="status" />
-                <th className="p-3 font-medium w-10"></th>
+                <th className="p-3 font-medium w-20"></th>
               </tr>
             </thead>
             <tbody>
@@ -120,8 +123,11 @@ export default function Inventory() {
                   <td className="p-3 font-mono text-right text-xs">{toINR(item.unitPrice)}</td>
                   <td className="p-3 text-xs font-mono">{item.expiryDate}</td>
                   <td className="p-3"><StatusBadge status={item.status} /></td>
-                  <td className="p-3">
-                    <button onClick={() => handleDelete(item.id)} className="text-muted-foreground hover:text-status-expired transition-colors">
+                  <td className="p-3 flex gap-2">
+                    <button onClick={() => { setEditProduct(item); setEditOpen(true); }} className="text-muted-foreground hover:text-primary transition-colors" title="Edit">
+                      <Pencil size={14} strokeWidth={1.5} />
+                    </button>
+                    <button onClick={() => handleDelete(item.id)} className="text-muted-foreground hover:text-status-expired transition-colors" title="Delete">
                       <Trash2 size={14} strokeWidth={1.5} />
                     </button>
                   </td>
@@ -131,6 +137,8 @@ export default function Inventory() {
           </table>
         </div>
       )}
+
+      <EditStockDialog product={editProduct} open={editOpen} onOpenChange={setEditOpen} onUpdated={refresh} />
     </div>
   );
 }
