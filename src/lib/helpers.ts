@@ -1,4 +1,4 @@
-import { Product, ProductStatus } from './types';
+import { Product, ProductStatus, Supplier } from './types';
 
 export const toINR = (val: number) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(val);
