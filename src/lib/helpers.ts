@@ -47,4 +47,4 @@ export const seedSuppliers = (): Supplier[] => [
   { id: generateId(), name: 'Tata Consumer Products', contact: '+91 98765 43213', email: 'sales@tataconsumer.com', category: 'Beverages', rating: 5 },
 ];
 
-import { Supplier } from './types';
+
