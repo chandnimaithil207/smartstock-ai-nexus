@@ -18,11 +18,6 @@ export default function Inventory() {
 
   const refresh = useCallback(() => setProducts(getProducts()), []);
 
-  const handleSeed = () => {
-    const seed = seedProducts();
-    saveProducts(seed);
-    refresh();
-  };
 
   const handleDelete = (id: string) => {
     deleteProduct(id);
