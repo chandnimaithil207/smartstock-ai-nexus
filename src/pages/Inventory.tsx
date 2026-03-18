@@ -16,6 +16,8 @@ export default function Inventory() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [sortKey, setSortKey] = useState<SortKey>('name');
   const [sortAsc, setSortAsc] = useState(true);
+  const [editProduct, setEditProduct] = useState<Product | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   const refresh = useCallback(() => setProducts(getProducts()), []);
 
