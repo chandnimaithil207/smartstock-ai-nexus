@@ -1,9 +1,9 @@
-import { Product, SaleEntry, Supplier } from './types';
+import { Product, SaleEntry } from './types';
+import { seedProducts } from './helpers';
 
 const KEYS = {
   products: 'smartstock_products',
   sales: 'smartstock_sales',
-  suppliers: 'smartstock_suppliers',
   auth: 'smartstock_auth',
 };
 
@@ -20,8 +20,16 @@ function set<T>(key: string, data: T[]) {
   localStorage.setItem(key, JSON.stringify(data));
 }
 
-// Products
-export const getProducts = (): Product[] => get<Product>(KEYS.products, []);
+// Products — auto-seed on first load
+export const getProducts = (): Product[] => {
+  const products = get<Product>(KEYS.products, []);
+  if (products.length === 0) {
+    const seed = seedProducts();
+    saveProducts(seed);
+    return seed;
+  }
+  return products;
+};
 export const saveProducts = (p: Product[]) => set(KEYS.products, p);
 export const addProduct = (p: Product) => {
   const all = getProducts();
@@ -39,22 +47,12 @@ export const addSale = (s: SaleEntry) => {
   const all = getSales();
   all.push(s);
   saveSales(all);
-  // Deduct from product stock
   const products = getProducts();
   const idx = products.findIndex(p => p.id === s.productId);
   if (idx !== -1) {
     products[idx].currentStock = Math.max(0, products[idx].currentStock - s.unitsSold);
     saveProducts(products);
   }
-};
-
-// Suppliers
-export const getSuppliers = (): Supplier[] => get<Supplier>(KEYS.suppliers, []);
-export const saveSuppliers = (s: Supplier[]) => set(KEYS.suppliers, s);
-export const addSupplier = (s: Supplier) => {
-  const all = getSuppliers();
-  all.push(s);
-  saveSuppliers(all);
 };
 
 // Auth

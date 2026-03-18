@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
-import { Package, AlertTriangle, TrendingDown, Clock } from 'lucide-react';
+import { Package, AlertTriangle, TrendingDown, Clock, ShieldAlert, CalendarClock } from 'lucide-react';
 import { getProducts, getSales } from '@/lib/store';
 import { getProductStatus, toINR, parseDate } from '@/lib/helpers';
 import { StatusBadge } from '@/components/StatusBadge';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { motion } from 'framer-motion';
 
 export default function Dashboard() {
@@ -23,6 +24,20 @@ export default function Dashboard() {
     }).length;
     return { totalSKUs, totalValue, alerts, lowStock, expired, expiringIn7Days };
   }, [products]);
+
+  const expiredItems = useMemo(() =>
+    products.filter(p => getProductStatus(p) === 'EXPIRED'), [products]);
+
+  const lowStockItems = useMemo(() =>
+    products.filter(p => getProductStatus(p) === 'LOW_STOCK'), [products]);
+
+  const expiringItems = useMemo(() =>
+    products.filter(p => {
+      const exp = parseDate(p.expiryDate);
+      const now = new Date();
+      const diff = (exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+      return diff >= 0 && diff <= 7;
+    }), [products]);
 
   const criticalItems = useMemo(() => {
     return products
@@ -48,6 +63,43 @@ export default function Dashboard() {
             : 'All systems nominal. No alerts.'}
         </p>
       </div>
+
+      {/* Alert Banners */}
+      {expiredItems.length > 0 && (
+        <Alert variant="destructive" className="border-status-expired/30 bg-status-expired/5">
+          <ShieldAlert className="h-4 w-4" style={{ color: 'hsl(var(--status-expired))' }} />
+          <AlertTitle className="text-sm font-bold" style={{ color: 'hsl(var(--status-expired))' }}>
+            {expiredItems.length} Expired Product{expiredItems.length > 1 ? 's' : ''} — Remove Immediately
+          </AlertTitle>
+          <AlertDescription className="text-xs text-muted-foreground mt-1">
+            {expiredItems.map(p => p.name).join(', ')}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {lowStockItems.length > 0 && (
+        <Alert className="border-status-expired/30 bg-status-expired/5">
+          <AlertTriangle className="h-4 w-4" style={{ color: 'hsl(var(--status-low))' }} />
+          <AlertTitle className="text-sm font-bold" style={{ color: 'hsl(var(--status-low))' }}>
+            {lowStockItems.length} Product{lowStockItems.length > 1 ? 's' : ''} Running Low — Restock Now
+          </AlertTitle>
+          <AlertDescription className="text-xs text-muted-foreground mt-1">
+            {lowStockItems.map(p => `${p.name} (${p.currentStock}/${p.minThreshold})`).join(', ')}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {expiringItems.length > 0 && (
+        <Alert className="border-status-overflow/30 bg-status-overflow/5">
+          <CalendarClock className="h-4 w-4" style={{ color: 'hsl(var(--status-overflow))' }} />
+          <AlertTitle className="text-sm font-bold" style={{ color: 'hsl(var(--status-overflow))' }}>
+            {expiringItems.length} Product{expiringItems.length > 1 ? 's' : ''} Expiring Within 7 Days
+          </AlertTitle>
+          <AlertDescription className="text-xs text-muted-foreground mt-1">
+            {expiringItems.map(p => `${p.name} (${p.expiryDate})`).join(', ')}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map((kpi, i) => (

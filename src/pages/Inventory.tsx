@@ -1,13 +1,11 @@
 import { useState, useMemo, useCallback } from 'react';
-import { getProducts, deleteProduct, saveProducts } from '@/lib/store';
+import { getProducts, deleteProduct } from '@/lib/store';
 import { getProductStatus, toINR } from '@/lib/helpers';
 import { StatusBadge } from '@/components/StatusBadge';
 import { AddProductDialog } from '@/components/AddProductDialog';
 import { Package, Trash2, ArrowUpDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Product, CATEGORIES } from '@/lib/types';
-import { seedProducts } from '@/lib/helpers';
 
 type SortKey = 'name' | 'currentStock' | 'expiryDate' | 'status';
 
@@ -20,11 +18,6 @@ export default function Inventory() {
 
   const refresh = useCallback(() => setProducts(getProducts()), []);
 
-  const handleSeed = () => {
-    const seed = seedProducts();
-    saveProducts(seed);
-    refresh();
-  };
 
   const handleDelete = (id: string) => {
     deleteProduct(id);
@@ -73,11 +66,6 @@ export default function Inventory() {
           <p className="text-xs text-muted-foreground mt-1">{products.length} products tracked</p>
         </div>
         <div className="flex items-center gap-2">
-          {products.length === 0 && (
-            <Button onClick={handleSeed} variant="outline" className="text-sm border-border text-muted-foreground hover:text-foreground">
-              Load Sample Data
-            </Button>
-          )}
           <AddProductDialog onAdded={refresh} />
         </div>
       </div>
