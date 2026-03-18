@@ -110,7 +110,7 @@ export default function Inventory() {
                 <th className="text-right p-3 font-medium">Price</th>
                 <th className="text-left p-3 font-medium">Expiry</th>
                 <SortHeader label="Status" field="status" />
-                <th className="p-3 font-medium w-10"></th>
+                <th className="p-3 font-medium w-20"></th>
               </tr>
             </thead>
             <tbody>
