@@ -137,6 +137,8 @@ export default function Inventory() {
           </table>
         </div>
       )}
+
+      <EditStockDialog product={editProduct} open={editOpen} onOpenChange={setEditOpen} onUpdated={refresh} />
     </div>
   );
 }
