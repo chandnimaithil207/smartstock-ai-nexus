@@ -66,11 +66,6 @@ export default function Inventory() {
           <p className="text-xs text-muted-foreground mt-1">{products.length} products tracked</p>
         </div>
         <div className="flex items-center gap-2">
-          {products.length === 0 && (
-            <Button onClick={handleSeed} variant="outline" className="text-sm border-border text-muted-foreground hover:text-foreground">
-              Load Sample Data
-            </Button>
-          )}
           <AddProductDialog onAdded={refresh} />
         </div>
       </div>
