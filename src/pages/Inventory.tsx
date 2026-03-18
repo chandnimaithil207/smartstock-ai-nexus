@@ -123,8 +123,11 @@ export default function Inventory() {
                   <td className="p-3 font-mono text-right text-xs">{toINR(item.unitPrice)}</td>
                   <td className="p-3 text-xs font-mono">{item.expiryDate}</td>
                   <td className="p-3"><StatusBadge status={item.status} /></td>
-                  <td className="p-3">
-                    <button onClick={() => handleDelete(item.id)} className="text-muted-foreground hover:text-status-expired transition-colors">
+                  <td className="p-3 flex gap-2">
+                    <button onClick={() => { setEditProduct(item); setEditOpen(true); }} className="text-muted-foreground hover:text-primary transition-colors" title="Edit">
+                      <Pencil size={14} strokeWidth={1.5} />
+                    </button>
+                    <button onClick={() => handleDelete(item.id)} className="text-muted-foreground hover:text-status-expired transition-colors" title="Delete">
                       <Trash2 size={14} strokeWidth={1.5} />
                     </button>
                   </td>
