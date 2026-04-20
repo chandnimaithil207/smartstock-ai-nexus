@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
-import { DollarSign, TrendingDown, AlertTriangle, PiggyBank, Package, Clock, Loader2, Wallet } from 'lucide-react';
+import { DollarSign, TrendingDown, AlertTriangle, Package, Clock, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getProducts, getSales } from '@/lib/store';
@@ -26,7 +26,7 @@ interface CostRow {
 
 type Urgency = 'CRITICAL' | 'MEDIUM' | 'LOW';
 
-const getUrgency = (daysLeft: number, currentStock: number, predictedDemand: number): Urgency => {
+const getUrgency = (daysLeft: number, currentStock: number, _predictedDemand: number): Urgency => {
   if (currentStock <= 0 || daysLeft < 3) return 'CRITICAL';
   if (daysLeft < 7) return 'MEDIUM';
   return 'LOW';
@@ -97,34 +97,18 @@ export default function CostIntelligence() {
     }, 1800);
   };
 
-  const kpis = useMemo(() => {
-    const stockoutLoss = rows.reduce((s, r) => s + r.stockoutLoss, 0);
-    const holdingCost = rows.reduce((s, r) => s + r.holdingCost, 0);
-    const excessValue = rows.reduce((s, r) => s + r.excessValue, 0);
-    const totalImpact = stockoutLoss + holdingCost;
-    const recoverable = totalImpact * 0.65;
-    return { stockoutLoss, holdingCost, excessValue, totalImpact, recoverable };
-  }, [rows]);
+  const understockLoss = rows.reduce((s, r) => s + r.stockoutLoss, 0);
+  const overstockLoss = rows.reduce((s, r) => s + r.excessValue, 0);
+  const totalLoss = understockLoss + overstockLoss;
 
-  const leakageData = useMemo(() => {
+  const productLossData = useMemo(() => {
     return [...rows]
-      .sort((a, b) => b.totalImpact - a.totalImpact)
-      .slice(0, 8)
+      .sort((a, b) => (b.stockoutLoss + b.excessValue) - (a.stockoutLoss + a.excessValue))
       .map((r) => ({
         name: r.productName.length > 16 ? r.productName.slice(0, 16) + '…' : r.productName,
-        Stockout: Math.round(r.stockoutLoss),
-        Holding: Math.round(r.holdingCost),
+        Understock: Math.round(r.stockoutLoss),
+        Overstock: Math.round(r.excessValue),
       }));
-  }, [rows]);
-
-  const categoryPnL = useMemo(() => {
-    const map = new Map<string, number>();
-    rows.forEach((r) => {
-      map.set(r.category, (map.get(r.category) || 0) + r.totalImpact);
-    });
-    return Array.from(map.entries())
-      .map(([category, loss]) => ({ category, loss: Math.round(loss) }))
-      .sort((a, b) => b.loss - a.loss);
   }, [rows]);
 
   const playbook = useMemo(() => {
@@ -148,11 +132,9 @@ export default function CostIntelligence() {
   };
 
   const kpiCards = [
-    { label: 'Stockout Loss', value: toINR(kpis.stockoutLoss), icon: TrendingDown, tone: 'text-status-expired' },
-    { label: 'Holding Cost', value: toINR(kpis.holdingCost), icon: Package, tone: 'text-status-low' },
-    { label: 'Excess Stock Value', value: toINR(kpis.excessValue), icon: Wallet, tone: 'text-primary' },
-    { label: 'Total Impact', value: toINR(kpis.totalImpact), icon: AlertTriangle, tone: 'text-status-expired' },
-    { label: 'Recoverable Savings', value: toINR(kpis.recoverable), icon: PiggyBank, tone: 'text-status-ok' },
+    { label: 'Understock Loss', value: toINR(understockLoss), icon: TrendingDown, tone: 'text-status-expired' },
+    { label: 'Overstock Loss', value: toINR(overstockLoss), icon: Package, tone: 'text-status-low' },
+    { label: 'Total Loss', value: toINR(totalLoss), icon: AlertTriangle, tone: 'text-status-expired' },
   ];
 
   return (
@@ -186,7 +168,7 @@ export default function CostIntelligence() {
 
       {hasRun && (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {kpiCards.map((k, i) => (
               <motion.div
                 key={k.label}
@@ -204,46 +186,30 @@ export default function CostIntelligence() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="kpi-card">
-              <h3 className="text-sm font-medium tracking-heading mb-4">Cost Leakage — Top 8 SKUs</h3>
-              {leakageData.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-8">No leakage detected.</p>
-              ) : (
-                <ResponsiveContainer width="100%" height={280}>
-                  <BarChart data={leakageData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 9 }} angle={-15} textAnchor="end" height={60} />
-                    <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend wrapperStyle={{ fontSize: 10 }} />
-                    <Bar dataKey="Stockout" stackId="a" fill="hsl(var(--status-expired))" radius={[0, 0, 0, 0]} />
-                    <Bar dataKey="Holding" stackId="a" fill="hsl(var(--status-low))" radius={[2, 2, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-
-            <div className="kpi-card">
-              <h3 className="text-sm font-medium tracking-heading mb-4">Category-wise P&amp;L Impact</h3>
-              {categoryPnL.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-8">No category losses.</p>
-              ) : (
-                <ResponsiveContainer width="100%" height={280}>
-                  <BarChart data={categoryPnL} layout="vertical" margin={{ left: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis type="number" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
-                    <YAxis type="category" dataKey="category" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} width={90} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="loss" name="Total Loss" radius={[0, 4, 4, 0]}>
-                      {categoryPnL.map((entry, idx) => (
-                        <Cell key={idx} fill={entry.loss > 0 ? 'hsl(var(--status-expired))' : 'hsl(var(--status-ok))'} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </div>
+          <div className="kpi-card">
+            <h3 className="text-sm font-medium tracking-heading mb-4">Product Loss Breakdown</h3>
+            {productLossData.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-8">No loss data to display.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={productLossData} margin={{ left: 20, right: 20, bottom: 60 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="name" 
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 9 }} 
+                    angle={-35} 
+                    textAnchor="end" 
+                    height={70} 
+                    interval={0}
+                  />
+                  <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend wrapperStyle={{ fontSize: 10 }} />
+                  <Bar dataKey="Understock" name="Understock Loss" fill="hsl(var(--status-expired))" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="Overstock" name="Overstock Loss" fill="hsl(var(--status-low))" radius={[2, 2, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
 
           <div className="kpi-card overflow-hidden">
