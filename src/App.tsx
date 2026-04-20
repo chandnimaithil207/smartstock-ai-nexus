@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
 import SalesLogs from "./pages/SalesLogs";
 import AIForecasts from "./pages/AIForecasts";
+import CostIntelligence from "./pages/CostIntelligence";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/sales" element={<SalesLogs />} />
             <Route path="/forecasts" element={<AIForecasts />} />
+            <Route path="/cost-intelligence" element={<CostIntelligence />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
