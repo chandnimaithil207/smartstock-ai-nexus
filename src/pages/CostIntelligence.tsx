@@ -97,34 +97,18 @@ export default function CostIntelligence() {
     }, 1800);
   };
 
-  const kpis = useMemo(() => {
-    const stockoutLoss = rows.reduce((s, r) => s + r.stockoutLoss, 0);
-    const holdingCost = rows.reduce((s, r) => s + r.holdingCost, 0);
-    const excessValue = rows.reduce((s, r) => s + r.excessValue, 0);
-    const totalImpact = stockoutLoss + holdingCost;
-    const recoverable = totalImpact * 0.65;
-    return { stockoutLoss, holdingCost, excessValue, totalImpact, recoverable };
-  }, [rows]);
+  const understockLoss = rows.reduce((s, r) => s + r.stockoutLoss, 0);
+  const overstockLoss = rows.reduce((s, r) => s + r.excessValue, 0);
+  const totalLoss = understockLoss + overstockLoss;
 
-  const leakageData = useMemo(() => {
+  const productLossData = useMemo(() => {
     return [...rows]
-      .sort((a, b) => b.totalImpact - a.totalImpact)
-      .slice(0, 8)
+      .sort((a, b) => (b.stockoutLoss + b.excessValue) - (a.stockoutLoss + a.excessValue))
       .map((r) => ({
         name: r.productName.length > 16 ? r.productName.slice(0, 16) + '…' : r.productName,
-        Stockout: Math.round(r.stockoutLoss),
-        Holding: Math.round(r.holdingCost),
+        Understock: Math.round(r.stockoutLoss),
+        Overstock: Math.round(r.excessValue),
       }));
-  }, [rows]);
-
-  const categoryPnL = useMemo(() => {
-    const map = new Map<string, number>();
-    rows.forEach((r) => {
-      map.set(r.category, (map.get(r.category) || 0) + r.totalImpact);
-    });
-    return Array.from(map.entries())
-      .map(([category, loss]) => ({ category, loss: Math.round(loss) }))
-      .sort((a, b) => b.loss - a.loss);
   }, [rows]);
 
   const playbook = useMemo(() => {
