@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
-import { DollarSign, TrendingDown, AlertTriangle, Package, Loader2 } from 'lucide-react';
+import { DollarSign, TrendingDown, AlertTriangle, Package, Clock, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getProducts, getSales } from '@/lib/store';
