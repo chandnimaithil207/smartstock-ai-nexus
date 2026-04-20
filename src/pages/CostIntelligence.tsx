@@ -147,12 +147,14 @@ export default function CostIntelligence() {
     );
   };
 
+  const understockLoss = rows.reduce((s, r) => s + r.stockoutLoss, 0);
+  const overstockLoss = rows.reduce((s, r) => s + r.excessValue, 0);
+  const totalLoss = understockLoss + overstockLoss;
+
   const kpiCards = [
-    { label: 'Stockout Loss', value: toINR(kpis.stockoutLoss), icon: TrendingDown, tone: 'text-status-expired' },
-    { label: 'Holding Cost', value: toINR(kpis.holdingCost), icon: Package, tone: 'text-status-low' },
-    { label: 'Excess Stock Value', value: toINR(kpis.excessValue), icon: Wallet, tone: 'text-primary' },
-    { label: 'Total Impact', value: toINR(kpis.totalImpact), icon: AlertTriangle, tone: 'text-status-expired' },
-    { label: 'Recoverable Savings', value: toINR(kpis.recoverable), icon: PiggyBank, tone: 'text-status-ok' },
+    { label: 'Understock Loss', value: toINR(understockLoss), icon: TrendingDown, tone: 'text-status-expired' },
+    { label: 'Overstock Loss', value: toINR(overstockLoss), icon: Package, tone: 'text-status-low' },
+    { label: 'Total Loss', value: toINR(totalLoss), icon: AlertTriangle, tone: 'text-status-expired' },
   ];
 
   return (
