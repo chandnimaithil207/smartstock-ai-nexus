@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { getProducts, getSales, addSale } from '@/lib/store';
-import { formatDate, generateId, toINR, parseDate } from '@/lib/helpers';
+import { formatDate, generateId, toINR } from '@/lib/helpers';
 import { ShoppingCart, TrendingUp, Package, IndianRupee, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
