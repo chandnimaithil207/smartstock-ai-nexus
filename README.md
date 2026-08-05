@@ -232,5 +232,3 @@ Traditional inventory systems rely on manual estimation, often leading to overst
 
 **Chandni Maithil**
 ---
-
-## ⭐ If you found this project helpful, consider giving it a star!
